@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# environment and secrets
+.env
+.env.*
+*.pem
+*.key
+
+# local state
+*.db
+*.db-journal
+.tgcloud/
+
+# logs
+*.log
+logs/
+
+# editor and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,19 @@
+# Everything the image must never carry into a build context.
+node_modules/
+dist/
+.git/
+.github/
+tests/
+.vscode/
+.idea/
+.env
+.env.*
+*.pem
+*.key
+*.db
+*.db-journal
+.tgcloud/
+logs/
+*.log
+.DS_Store
+Thumbs.db
