@@ -19,7 +19,7 @@
 # needs to run. No dev tools, no source, no secrets in the final image.
 
 # --- builder ----------------------------------------------------------------
-FROM node:20-slim AS builder
+FROM node:26.7.0-slim AS builder
 
 # better-sqlite3 ships prebuilt binaries for glibc, but building from source
 # must still work if a prebuilt binary is missing for an architecture.
@@ -39,7 +39,7 @@ COPY docs/SETUP.md ./docs/SETUP.md
 RUN pnpm build && pnpm prune --prod
 
 # --- runtime -----------------------------------------------------------------
-FROM node:20-slim AS runtime
+FROM node:26.7.0-slim AS runtime
 
 LABEL org.opencontainers.image.title="postwisp" \
       org.opencontainers.image.source="https://github.com/RezaHarirchian/postwisp" \
