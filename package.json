@@ -1,0 +1,48 @@
+{
+  "author": "Reza Harirchian",
+  "bin": {
+    "postwisp": "dist/cli/index.js"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "better-sqlite3": "^12.2.0",
+    "commander": "^14.0.0",
+    "fastify": "^5.4.0",
+    "grammy": "^1.37.0"
+  },
+  "description": "Self-hosted Telegram bot for two-way email management",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "PRIVACY.md",
+    "docs/SETUP.md"
+  ],
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.11"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "AGPL-3.0-or-later",
+  "name": "postwisp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RezaHarirchian/postwisp.git"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "type": "module",
+  "version": "0.2.0"
+}

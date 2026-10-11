@@ -1,0 +1,123 @@
+// postwisp — self-hosted Telegram email manager
+// Copyright (C) 2026 Reza Harirchian
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Deploy guide for the companion Cloudflare Email Worker (inbound only).
+// Plain text, copy-paste ready; printed, never piped through a pager.
+export function cloudflareGuideText(ingestUrl: string | null): string {
+  const urlLine = ingestUrl ?? 'https://your-server.example.com/ingest/cloudflare';
+  const lines = [
+    'Cloudflare Email Routing inbound for postwisp',
+    '=============================================',
+    '',
+    'A companion Email Worker on YOUR Cloudflare account receives mail for',
+    'your domain and forwards it to postwisp. Sending always stays on Resend',
+    '(Cloudflare Workers Paid is required for SMTP sending).',
+    '',
+    'IMPORTANT: one domain, one inbound provider. A domain\'s MX records can',
+    'point at Resend OR Cloudflare Email Routing, never both. Pick per',
+    'domain: Resend receives it, or Cloudflare receives it. Sending via',
+    'Resend while receiving via Cloudflare on the same domain is fine.',
+    '',
+    'Prerequisites',
+    '-------------',
+    '- A Cloudflare account with your domain added to it',
+    '- wrangler installed and logged in (run: wrangler login)',
+    '- Your postwisp server reachable over HTTPS',
+    '',
+    '1. Generate the shared secret (run once)',
+    '----------------------------------------',
+    'This secret authenticates the worker to postwisp. Both sides must use',
+    'the exact same value.',
+    '',
+    '    openssl rand -hex 32',
+    '',
+    '2. Tell postwisp the secret',
+    '----------------------------',
+    'Set it as an environment variable:',
+    '',
+    '    export POSTWISP_CF_INGEST_SECRET=<paste the hex from step 1>',
+    '',
+    'Or as cloudflare_ingest_secret in the postwisp config file, then',
+    'restart postwisp. The /ingest/cloudflare route only exists while this',
+    'secret is set.',
+    '',
+    '3. Create the worker project',
+    '-----------------------------',
+    '    mkdir postwisp-mail-worker && cd postwisp-mail-worker',
+    '    npm init -y',
+    '    npm i postal-mime',
+    '',
+    'Copy adapters/cloudflare/worker.js from the postwisp repo into this',
+    'directory.',
+    '',
+    '4. Create wrangler.toml',
+    '-----------------------',
+    '    name = "postwisp-mail-worker"',
+    '    main = "worker.js"',
+    '    compatibility_date = "2026-10-10"',
+    '',
+    '    [vars]',
+    `    POSTWISP_INGEST_URL = "${urlLine}"`,
+    '',
+    'POSTWISP_INGEST_URL is the full URL of your postwisp server\'s',
+    '/ingest/cloudflare endpoint. It must be HTTPS and reachable from the',
+    'public internet.',
+    '',
+    '5. Store the secret in the worker (never in wrangler.toml)',
+    '-----------------------------------------------------------',
+    '    wrangler secret put POSTWISP_SECRET',
+    '',
+    'Paste the same hex from step 1 when prompted.',
+    '',
+    '6. Deploy and attach the route',
+    '-------------------------------',
+    '    wrangler deploy',
+    '',
+    'Then in the Cloudflare dashboard, under Email Routing for your domain,',
+    'add a catch-all rule that sends to this worker. Until that rule exists,',
+    'Cloudflare drops incoming mail instead of forwarding it.',
+    '',
+    '7. Verify',
+    '---------',
+    '- Send a test email to any address on the domain.',
+    '- wrangler tail should show no errors.',
+    '- postwisp\'s log shows the "cloudflare ingest processed" line and the',
+    '  email appears in the bot like any other inbound message.',
+    '',
+    'If the worker logs "postwisp ingest rejected the email", the two sides',
+    'disagree on the secret: compare POSTWISP_SECRET in the worker with',
+    'postwisp\'s POSTWISP_CF_INGEST_SECRET.',
+    '',
+    'Attachment caps',
+    '---------------',
+    '- Files over 5 MB are not forwarded inline.',
+    '- Once forwarded attachments pass 8 MB in one email, the rest are',
+    '  skipped. Skipped files are listed with truncated: true so you see',
+    '  what was dropped.',
+    '- Attachment bytes are kept server-side for later download, capped at',
+    '  20 MB per email.',
+    '',
+    'Rotating the secret',
+    '-------------------',
+    '1. openssl rand -hex 32',
+    '2. Set the new value in postwisp first, then restart it.',
+    '3. wrangler secret put POSTWISP_SECRET && wrangler deploy',
+    '4. Send a test email.',
+    'Mail arriving while the two sides disagree is rejected; keep the gap',
+    'short.',
+  ];
+  return lines.join('\n');
+}
