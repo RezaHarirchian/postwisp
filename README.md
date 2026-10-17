@@ -133,9 +133,9 @@ flowchart LR
 |---|---|---|
 | [npm](#method-1-npm) | Node 20+ | You already run Node and want the plainest install. |
 | [Docker](#method-2-docker) | Docker | You want the daemon isolated with its config and data on volumes. |
+| [Single-file binary](#method-3-single-file-binary) | A machine to build on | You want one file with no npm registry dependency. CLI only · built with `./scripts/build-sea.sh`, see below. |
 | [install.sh](#method-4-installsh) | curl, root or sudo | Fresh VPS with nothing on it; the script installs Node for you. |
 | [From source](#method-5-from-source) | Node 20+, pnpm | You want to hack on it or run a checkout. |
-| [Single-file binary](#method-3-single-file-binary) | A machine to build on | You want one file with no npm registry dependency. CLI only · built with `./scripts/build-sea.sh`, see below. |
 | [Telegram Serverless](#method-6-telegram-serverless-tgcloud) | Nothing (no server) | You want zero infrastructure and only the core loop. |
 
 All methods end at the same place: run `postwisp setup`, then start the
